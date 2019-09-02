@@ -1,13 +1,7 @@
 import React from 'react';
-import {expect} from 'chai';
-import sinon from 'sinon';
-// import App from '../component/App';
+
 import {watch} from "../src";
 
-import {mount, configure} from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
-
-// configure({ adapter: new Adapter() });
 // @watch
 class App extends React.Component{
     state = {
@@ -65,25 +59,4 @@ class App extends React.Component{
     }
 }
 
-//  测试当props改变的时候监视的函数有触发，没有监视的函数没有触发
-describe('calls componentDidMount', function () {
-    it('App\'s title should be title', function () {
-        // const spy = sinon.spy(App.prototype, 'componentWillReceiveProps');
-        //
-        // const wrapper = mount(<App count={0}/>);
-        // expect(spy).to.have.property('callCount', 0);
-        //
-        // wrapper.setProps({count: 5});
-        //
-        // console.log(wrapper.debug());
-        // expect(spy).to.have.property('callCount', 1);
-
-        const spy = sinon.spy(App.prototype, 'componentWillReceiveProps');
-
-        const wrapper = mount(<App count="bar"/>);
-        expect(spy).to.have.property('callCount', 0);
-        wrapper.setProps({count: 'foo'});
-        expect(spy).to.have.property('callCount', 1);
-    });
-
-});
+export default watch(App)
