@@ -2,13 +2,10 @@ import React from 'react';
 
 import {watch} from "../src";
 
-// @watch
-class App extends React.Component{
+@watch
+class App extends React.Component {
     state = {
-        list: [
-            {id: 0},
-            {id: 1},
-        ]
+        list: [1, 2, 3]
     }
 
     componentDidMount() {
@@ -19,39 +16,36 @@ class App extends React.Component{
         console.log('oldReceiveProps: ', nextProps);
     }
 
-    static getDerivedStateFromProps = (props, state) => {
-        console.log('getDerivedStateFromProps: ', props, state);
-        return null
-    }
+    // static getDerivedStateFromProps = (props, state) => {
+    //     console.log('getDerivedStateFromProps: ', props, state);
+    //     return null
+    // }
 
-    componentDidUpdate = (prevProps, prevState, snapshot) => {
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        this.oldDidUpdate()
         console.log('oldDidUpdate: ', prevProps, prevState, this.state, this.props);
     }
 
     watchChange() {
         return {
             state: {
-                [`list`]: () => { this.stateChanged(); console.log('fetchList') }
+                [`list`]: () => {
+                    this.stateChanged();
+                }
             },
             props: {
-                [`count`]: () => { this.propsChange(); console.log('updateProps') }
+                [`count`]: () => {
+                    this.propsChanged();
+                }
             }
         }
     }
 
-    propsChange() {
-        console.log('propsChange');
-    }
+    oldDidUpdate() {}
 
-    stateChanged() {
-        console.log('stateChanged');
-    }
+    propsChanged() {}
 
-    changeState = e => {
-        this.setState({
-            a: []
-        })
-    }
+    stateChanged() {}
 
     render() {
         const {count} = this.props;
@@ -59,4 +53,4 @@ class App extends React.Component{
     }
 }
 
-export default watch(App)
+export default App

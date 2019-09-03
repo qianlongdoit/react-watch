@@ -1,8 +1,8 @@
 {
   "name": "watch-in-react",
   "version": "0.0.0",
-  "description": "Some feature like watch in Vue, when detected state and props changed then do something",
-  "main": "index.js",
+  "description": "Some feature like watch in Vue, when detected state or props changed then do something",
+  "main": "lib/ndex.js",
   "scripts": {
     "build": "babel src -d lib",
     "test": "mocha --require @babel/register --require ./test/setup.js"

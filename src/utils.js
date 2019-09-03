@@ -1,4 +1,4 @@
-/**
+/**根据key值查找对象的value
  * key可能的形式有 'a.b.c' 'a[c].c[f]'
  * @param key
  * @param obj
