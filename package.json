@@ -1,11 +1,11 @@
 {
-  "name": "watch-in-react",
-  "version": "0.0.0",
-  "description": "Some feature like watch in Vue, when detected state and props changed then do something",
-  "main": "index.js",
+  "name": "react-watch",
+  "version": "1.0.0",
+  "description": "Some feature like watch in Vue, when state or props changes are detected then do something",
+  "main": "lib/index.js",
   "scripts": {
     "build": "babel src -d lib",
-    "test": "mocha --require babel-core/register --require ./test/setup.js"
+    "test": "mocha --require @babel/register --require ./test/setup.js"
   },
   "keywords": [
     "react",
@@ -15,19 +15,39 @@
   "license": "ISC",
   "dependencies": {
     "react": "^16.5.2",
-    "react-dom": "^16.5.2"
+    "react-dom": "^16.5.2",
+    "underscore": "^1.9.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.5.5",
     "@babel/core": "^7.5.5",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-proposal-decorators": "^7.4.4",
     "@babel/preset-env": "^7.5.5",
-    "@babel/preset-es2015": "^7.0.0-beta.53",
+    "@babel/preset-es2015": "^7.0.0-beta.50",
     "@babel/preset-react": "^7.0.0",
     "@babel/register": "^7.5.5",
     "chai": "^4.2.0",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.14.0",
     "jsdom": "^15.1.1",
-    "mocha": "^6.2.0"
+    "mocha": "^6.2.0",
+    "sinon": "^7.4.1"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env",
+      "@babel/preset-react"
+    ],
+    "plugins": [
+      [
+        "@babel/plugin-proposal-decorators",
+        {
+          "legacy": true
+        }
+      ],
+      "@babel/plugin-proposal-class-properties"
+    ],
+    "comments": false
   }
 }

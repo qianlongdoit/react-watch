@@ -1,20 +1,21 @@
-/**
+/**根据key值查找对象的value
  * key可能的形式有 'a.b.c' 'a[c].c[f]'
  * @param key
  * @param obj
- * @return {*}
+ * @return array [found, obj]
  */
 export const parseKey = function (key, obj) {
     let value = obj;
     key = key.replace(/]/g, '').replace(/\[/g, '.');
     let attr = key.split('.');
     while (attr.length) {
-        if (!value) {
-            return console.error(`Cannot read property '${attr}' of undefined in state or props`)
-        }
         let curKey = attr.shift();
-        value = value[curKey];
+        if (value.hasOwnProperty(curKey)) {
+            value = value[curKey];
+        } else {
+            return [false]
+        }
     }
 
-    return value;
+    return [true, value];
 }

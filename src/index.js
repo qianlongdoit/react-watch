@@ -1,54 +1,109 @@
+import _ from 'underscore'
 import {parseKey} from './utils'
 
 
-export const watch = function (WrappedComponent) {
-    // let oldDidUpdate = WrappedComponent.prototype.componentDidUpdate;
-    // console.log(oldDidUpdate, WrappedComponent.prototype);
-    // console.log(WrappedComponent.prototype);
+const addProxy = function (target) {
+    let proxy = new Proxy(target, {
+        get: function (target, key, receiver) {
+            console.log('get trigger: +++++++++');
+            return target[key]
+        },
+        set: function (target, key, receiver) {
+            console.log('set trigger: ------------');
+            return target[key]
+        }
+    });
 
+    return proxy;
+}
+
+/**js中相等的比较可以参考underscore中的isEqual函数
+ * 参考 https://github.com/lessfish/underscore-analysis/blob/master/underscore-1.8.3.js/src/underscore-1.8.3.js#L1094-L1190
+ *
+ */
+export const watch = function (WrappedComponent) {
     return class WatchProps extends WrappedComponent {
 
         componentWillMount() {
-            // console.log('newWillMount: ');
+            let oldSetState = WrappedComponent.prototype.setState;
             let oldDidUpdate = this.componentDidUpdate;
+            if (!this.watchChange) {
+                return console.error(`Can not find watchChange in ${WrappedComponent.name}`);
+            }
+            const {state, props} = this.watchChange();
+            const stateWatchList = Object.keys(state);
+            const propsWatchList = Object.keys(props);
+
+            //  用来存储上一次的preState, preProps
+            let memory = {state: {}, props: {}};
+
             this.componentDidUpdate = function (prevProps, prevState, snapshot) {
                 oldDidUpdate && oldDidUpdate.apply(this, arguments);
-                const {state, props} = this.watchChange() || {};
-                // console.log('newDidUpdate: ', state, props, prevProps, prevState);
-                let stateWatchList = Object.keys(state);
-                let propsWatchList = Object.keys(props);
 
-                stateWatchList.forEach(key => {
-                    if (parseKey(key, this.state) !== parseKey(key, prevState)) {
-                        state[key]();
-                    }
-                });
-                propsWatchList.forEach(key => {
-                    // let p1 = parseKey(key, this.props)
-                    // let p2 = parseKey(key, prevProps);
-                    // console.log(p1, p2, '~~~~~~~', p1 !== p2);
-                    if (parseKey(key, this.props) !== parseKey(key, prevProps)) {
-                        props[key]();
-                    }
-                });
+                if (stateWatchList) {
+                    stateWatchList.forEach(key => {
+                        const [found, current] = parseKey(key, this.state);
+                        // const previous = memory.state.hasOwnProperty(key) ? memory.state[key] : parseKey(key, prevState);
+                        //
+                        // if (current !== previous) {
+                        //     state[key]()
+                        // }
 
+                        if (found) {
+                            memory.state[key] = current;
+                        }
+                    });
+                }
+
+                if (propsWatchList) {
+                    propsWatchList.forEach(key => {
+                        const [found, current] = parseKey(key, this.props);
+                        const previous = memory.props.hasOwnProperty(key) ? memory.props[key] : parseKey(key, prevProps)[1];
+
+                        if (found && !_.isEqual(current, previous)) {
+                            props[key](current, previous)
+                        }
+
+                        memory.props[key] = current;
+                    });
+                }
             }
+
+            //  每次 setState 就认为要监测的值发生了一次变化，但是对于 set 相同的 state 无法区分！
+            WrappedComponent.prototype.setState = function (partialState, callback) {
+                // console.log(this.state, partialState, memory);
+                if (typeof partialState === 'object' && stateWatchList) {
+                    stateWatchList.forEach(key => {
+                        let [found, value] = parseKey(key, partialState);
+                        if (found) {
+                            state[key](value, memory.state[key]);
+                        }
+                    })
+                }
+
+                oldSetState.apply(this, arguments);
+            };
         }
 
-        // componentDidMount() {
-        //     console.log('wrapperDidMount: ', oldDidUpdate, super.prototype);
-        // }
-
-        // componentWillReceiveProps(nextProps, nextState) {
-        //     console.log('newReceiveProps: ', nextProps);
-        // }
-
-        //  这个函数不会触发
-        // componentDidUpdate (prevProps, prevState, snapshot) {
-        //     oldDidUpdate && oldDidUpdate.apply(this, arguments);
+        /**使用Proxy监测state的变化
+         * 如果setState是使用一个新的obj去赋值的话，会把原来的Proxy给覆盖掉，造成监测失效
+         * 需要每次didUpdate的时候再次添加Proxy
+         */
+        // componentWillMount() {
+        //     if (!this.watchChange) {
+        //         return console.error(`Can not find watchChange in ${WrappedComponent.name}`);
+        //     }
         //     const {state, props} = this.watchChange();
-        //     this.componentDidUpdate();
-        //     console.log('newUpdate: ', this);
+        //     const stateWatchList = Object.keys(state);
+        //
+        //     // if (stateWatchList) {
+        //     //     stateWatchList.forEach(key => {
+        //     //         let value = parseKey(key, this.state);
+        //     //         value = addProxy(value);
+        //     //     })
+        //     // }
+        //
+        //     this.state.res.data.database = addProxy(this.state.res.data.database);
         // }
 
         render() {
