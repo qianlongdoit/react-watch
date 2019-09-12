@@ -20,6 +20,9 @@ const addProxy = function (target) {
 /**js中相等的比较可以参考underscore中的isEqual函数
  * 参考 https://github.com/lessfish/underscore-analysis/blob/master/underscore-1.8.3.js/src/underscore-1.8.3.js#L1094-L1190
  *
+ * 如果添加了重复的key，key所对应的fn是会执行2次吗？
+ * 如果watch的是多个key的数学运算的结果呢，可以正确的解析吗？
+ * 所以针对上面的问题，我们需要建立一个不重复的key对应一个fn
  */
 export const watch = function (WrappedComponent) {
     return class WatchProps extends WrappedComponent {
@@ -76,11 +79,13 @@ export const watch = function (WrappedComponent) {
                     stateWatchList.forEach(key => {
                         let [found, value] = parseKey(key, partialState);
                         if (found) {
+                            console.log('called: %%%%%%', key);
                             state[key](value, memory.state[key]);
                         }
                     })
                 }
 
+                console.log('called: @@@@@@@');
                 oldSetState.apply(this, arguments);
             };
         }

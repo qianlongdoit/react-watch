@@ -16,22 +16,8 @@ class App extends React.Component {
         }
     }
 
-    // componentDidMount() {
-    //     console.log('oldDidMount: ------');
-    // }
-
-    // componentWillReceiveProps(nextProps, nextState) {
-    //     console.log('oldReceiveProps: ', nextProps);
-    // }
-
-    // static getDerivedStateFromProps = (props, state) => {
-    //     console.log('getDerivedStateFromProps: ', props, state);
-    //     return null
-    // }
-
     componentDidUpdate(prevProps, prevState, snapshot) {
         this.oldDidUpdate()
-        // console.log('oldDidUpdate: ', prevProps, prevState, this.state, this.props);
     }
 
     watchChange() {
