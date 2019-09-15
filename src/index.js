@@ -79,13 +79,11 @@ export const watch = function (WrappedComponent) {
                     stateWatchList.forEach(key => {
                         let [found, value] = parseKey(key, partialState);
                         if (found) {
-                            console.log('called: %%%%%%', key);
                             state[key](value, memory.state[key]);
                         }
                     })
                 }
 
-                console.log('called: @@@@@@@');
                 oldSetState.apply(this, arguments);
             };
         }
