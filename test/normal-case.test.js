@@ -7,21 +7,19 @@ import {mount, configure} from 'enzyme';
 import App from '../component/App';
 
 describe('test without watch', function () {
-    let stateFn ;
     let sandbox;
 
     beforeEach(()=> {
         sandbox = sinon.createSandbox();
-        stateFn = sandbox.stub(App.prototype, 'setState');
+        sandbox.stub(App.prototype, 'setState');
     });
 
     afterEach(() => {
-        stateFn.resetHistory();
-        stateFn.restore();
         sandbox.restore();
     });
 
     it('normal case test', function () {
+        const stateFn = App.prototype.setState;
         const wrapper = mount(<App />);
         expect(stateFn).to.have.property('callCount', 0);
 

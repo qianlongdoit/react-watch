@@ -12,35 +12,49 @@ import {watch} from "../src";
 let Component = watch(App);
 
 //  原来的componentDidUpdate应该被保留并正确执行
-// describe('oldDidMount should be remain and called', function () {
-//     const spy = sinon.spy(Component.prototype, 'oldDidUpdate');
-//     afterEach(() => {
-//         sinon.restore();
-//     });
-//
-//     it('oldDidUpdate should be called', function () {
-//         const wrapper = mount(<Component/>);
-//         expect(spy).to.have.property('callCount', 0);
-//
-//         wrapper.setProps({count: 5});
-//         expect(spy).to.have.property('callCount', 1);
-//         // wrapper.unmount()
-//     });
-// });
+describe('oldDidMount should be remain and called', function () {
+    let sandbox;
+
+    beforeEach(() => {
+        sandbox = sinon.createSandbox();
+        sandbox.stub(Component.prototype, 'oldDidUpdate');
+    });
+
+    afterEach(() => {
+        sandbox.restore();
+    });
+
+    it('oldDidUpdate should be called', function () {
+        const wrapper = mount(<Component />);
+        const didUpdate = Component.prototype.oldDidUpdate;
+        expect(didUpdate).to.have.property('callCount', 0);
+
+        wrapper.setProps({count: 5});
+        expect(didUpdate).to.have.property('callCount', 1);
+        // wrapper.unmount()
+    });
+});
 
 // 当props or state改变的时候监视的函数有触发，没有监视的函数没有触发
 describe('watch props or state change', function () {
-    const propsFn = sinon.spy(Component.prototype, 'propsChanged');
-    const stateFn = sinon.spy(Component.prototype, 'stateChanged');
-    const setState = sinon.spy(Component.prototype, 'setState');
-    const wrapper = mount(<Component count={[1,2,3]} />);
+    let sandbox;
+
+    beforeEach(() => {
+        sandbox = sinon.createSandbox();
+        sandbox.stub(Component.prototype, 'propsChanged');
+        sandbox.stub(Component.prototype, 'stateChanged');
+        sandbox.stub(Component.prototype, 'setState');
+    });
 
     afterEach(() => {
-        setState.restore();
-        stateFn.resetHistory();
-        propsFn.resetHistory();
+        sandbox.restore();
     });
+
     it('props change', function () {
+        const propsFn = Component.prototype.propsChanged;
+        const stateFn = Component.prototype.stateChanged;
+        const wrapper = mount(<Component count={[1,2,3]} />);
+
         expect(propsFn).to.have.property('callCount', 0);
         expect(stateFn).to.have.property('callCount', 0);
 
@@ -56,10 +70,9 @@ describe('watch props or state change', function () {
     });
 
     it('state change', function () {
-        // const propsFn = sinon.spy(App.prototype, 'propsChanged');
-        // const stateFn = sinon.spy(App.prototype, 'stateChanged');
-        // 注释这一句后测试就无法通过了？？
-        // const set = sinon.spy(App.prototype, 'setState');
+        const propsFn = Component.prototype.propsChanged;
+        const stateFn = Component.prototype.stateChanged;
+        const wrapper = mount(<Component count={[1,2,3]} />);
 
         // const wrapper = mount(<App/>);
         expect(propsFn).to.have.property('callCount', 0);
