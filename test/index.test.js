@@ -9,15 +9,18 @@ import {watch} from "../src";
 // import NoneWatchFn from '../component/NoneWatch';
 
 // configure({ adapter: new Adapter() });
-let Component = watch(App);
 
 //  原来的componentDidUpdate应该被保留并正确执行
 describe('oldDidMount should be remain and called', function () {
     let sandbox;
+    let Component;
 
+    //  初始化很重要，否则之前测试的过程状态会被保留，导致结果不准确
     beforeEach(() => {
+        Component = watch(App);
         sandbox = sinon.createSandbox();
-        sandbox.stub(Component.prototype, 'oldDidUpdate');
+        sandbox.spy(Component.prototype, 'oldDidUpdate');
+        // sandbox.spy(Component.prototype, 'setState');
     });
 
     afterEach(() => {
@@ -31,19 +34,20 @@ describe('oldDidMount should be remain and called', function () {
 
         wrapper.setProps({count: 5});
         expect(didUpdate).to.have.property('callCount', 1);
-        // wrapper.unmount()
+        wrapper.unmount()
     });
 });
 
 // 当props or state改变的时候监视的函数有触发，没有监视的函数没有触发
 describe('watch props or state change', function () {
     let sandbox;
+    let Component;
 
     beforeEach(() => {
+        Component = watch(App);
         sandbox = sinon.createSandbox();
-        sandbox.stub(Component.prototype, 'propsChanged');
-        sandbox.stub(Component.prototype, 'stateChanged');
-        sandbox.stub(Component.prototype, 'setState');
+        sandbox.spy(Component.prototype, 'propsChanged');
+        sandbox.spy(Component.prototype, 'stateChanged');
     });
 
     afterEach(() => {
@@ -74,19 +78,18 @@ describe('watch props or state change', function () {
         const stateFn = Component.prototype.stateChanged;
         const wrapper = mount(<Component count={[1,2,3]} />);
 
-        // const wrapper = mount(<App/>);
         expect(propsFn).to.have.property('callCount', 0);
         expect(stateFn).to.have.property('callCount', 0);
 
         let {list, res} = wrapper.state();
         list = list.slice();
         list.push(5);
-        // res.data.database.name = 'uv';
 
         wrapper.setState({list: list});
         wrapper.setState({res: res});
         expect(propsFn).to.have.property('callCount', 0);
         expect(stateFn).to.have.property('callCount', 1);
+
 
         wrapper.setState({text: 'state watch function not trigger'});
         expect(propsFn).to.have.property('callCount', 0);

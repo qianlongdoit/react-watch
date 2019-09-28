@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {watch} from "../src";
+// import {watch} from "../src";
 
 // @watch
 class App extends React.Component {
@@ -23,8 +23,9 @@ class App extends React.Component {
     watchChange() {
         return {
             state: {
-                [`list`]: () => {
+                [`list`]: (cur, pre) => {
                     this.stateChanged();
+                    this.setState({list:1});
                 },
                 // [`lista`]: () => {
                 //     this.stateChanged();
