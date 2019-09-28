@@ -24,8 +24,8 @@ class App extends React.Component {
         return {
             state: {
                 [`list`]: (cur, pre) => {
+                    //  此处不要改变state中的list值
                     this.stateChanged();
-                    this.setState({list:1});
                 },
                 // [`lista`]: () => {
                 //     this.stateChanged();
